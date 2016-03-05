@@ -1,0 +1,42 @@
+# Dependencies
+markdown:         kramdown
+# kramdown:
+  # input: GFM
+highlighter:      rouge
+
+# Permalinks
+permalink:        pretty
+
+# Setup
+title:            Pedro Matias
+description:      ''
+url:              http://pmatias.com
+baseurl:          ""
+
+# Pagination
+paginate:         5
+paginate_path:    "blog/posts/:num"
+
+# Navigation
+navbar:
+  About:        "http://pmatias.com"
+  Archive:      "/archive"
+
+# Plugins
+gems:
+  - jekyll-paginate
+  - jekyll-gist
+
+# Custom vars
+author:
+  name:             Pedro Matias
+  github:           https://github.com/zydeon
+  linkedin:         https://www.linkedin.com/in/pamatias
+  email:            pedro@pmatias.com
+  hackerrank:       https://hackerrank.com/zydeon
+
+# Assets
+# We specify the directory for Jekyll so we can use @imports.
+sass:
+  sass_dir:          _sass
+  style:            :compressed

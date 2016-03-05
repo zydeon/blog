@@ -1,0 +1,32 @@
+// Layout
+//
+// Styles for managing the structural hierarchy of the site.
+
+.container {
+  max-width: 32rem;
+  padding-left:  1.5rem;
+  padding-right: 1.5rem;
+  margin-left:  auto;
+  margin-right: auto;
+}
+
+footer {
+  margin-top   : 1rem;
+  margin-bottom: 2rem;
+}
+
+hr.gradient{
+  border: 0;
+  height: 1px;
+  margin: 10px auto;
+  padding: 0px;
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0));
+}
+
+hr.gradient-blue{
+  background-image: linear-gradient(to right, rgba(38, 139, 210, 0), rgba(38, 139, 210, 1.0), rgba(38, 139, 210, 0));
+}
+
+hr.thick{
+  padding: 1px;
+}

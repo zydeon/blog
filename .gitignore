@@ -1,0 +1,6 @@
+_site/*
+Gemfile.lock
+_run.sh
+_update.sh
+.sass-cache/*
+.DS_Store
