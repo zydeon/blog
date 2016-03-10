@@ -7,7 +7,11 @@
 
   <title>
     {% if page.title == "Home" %}
-      {{ site.title }} &middot; {{ site.tagline }}
+      {% if site.tagline == %}
+        {{ site.title }}
+      {% else %}
+        {{ site.title }} &middot; {{ site.tagline }}
+      {% endif %}
     {% else %}
       {{ page.title }} &middot; {{ site.title }}
     {% endif %}
@@ -37,6 +41,12 @@
   <link rel="alternate" type="application/atom+xml" title="{{ site.title }}" href="{{ site.baseurl }}/atom.xml">
 
   <!-- Enable MathJax -->
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      TeX:     { equationNumbers: { autoNumber: "all" } },
+      tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] }
+    });
+  </script>
   <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   <!-- Font Awesome -->

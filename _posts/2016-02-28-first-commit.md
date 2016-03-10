@@ -10,7 +10,8 @@ Probably, you will see many posts about a particular intriguing problem in Compu
 
 Hope you enjoy and stay tuned!
 
-<hr class="gradient">  
+<br>
+<hr class="gradient small">  
 
 [1] &nbsp;&nbsp; V. Vazirani - [Approximation Algorithms](http://www.cc.gatech.edu/fac/Vijay.Vazirani/book.pdf)  
 [2] &nbsp;&nbsp; S. Arora and B. Barak - [Computational Complexity: A Modern Approach](http://theory.cs.princeton.edu/complexity/book.pdf)
