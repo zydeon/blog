@@ -3,7 +3,7 @@
 // Styles for managing the structural hierarchy of the site.
 
 .container {
-  max-width: 32rem;
+  max-width: 36rem;
   padding-left:  1.5rem;
   padding-right: 1.5rem;
   margin-left:  auto;
@@ -29,8 +29,11 @@ hr.small{
   padding: 0;
 }
 
-hr.large{
-  margin: 3em auto;
+@media (min-width: 64em) {
+  hr.large{
+    margin-left: -10em;
+    margin-right: -10em;
+  }
 }
 
 hr.gradient-blue{

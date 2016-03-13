@@ -27,7 +27,27 @@
       $(document.links).filter(function() {
         return this.hostname != window.location.hostname;
       }).attr('target', '_blank');      
-    })
+    });
+  </script>
+
+  <!-- Add behabiour to buttons that show/hide solutions -->
+  <script>
+    $(document).ready(function(){
+      $(".toggle-solution.hide").hide();
+      $(".toggle-solution.show").show();
+      $(".toggle-solution.hide").click(function(ev){
+        $(this).hide();
+        $(".hidden-solution").hide('fast');
+        $(".toggle-solution.show").show();
+      });
+      $(".toggle-solution.show").click(function(ev){
+        $(this).hide();
+        $(".hidden-solution").show('fast');
+        $(".toggle-solution.hide").show();
+        $('html,body').animate({
+          scrollTop: $('.toggle-solution.hide').offset().top}, 'slow');
+      });
+    }); 
   </script>  
 
   <!-- CSS -->
