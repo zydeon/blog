@@ -40,3 +40,6 @@ author:
 sass:
   sass_dir:          _sass
   style:            :compressed
+
+# Exclude unnecessary files
+exclude:            ['Rakefile']
