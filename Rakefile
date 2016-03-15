@@ -42,6 +42,7 @@ namespace :site do
       system "git push origin master:refs/heads/gh-pages --force"
 
       Dir.chdir pwd
+      system "git push"
     end
   end
 end

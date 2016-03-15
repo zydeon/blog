@@ -26,6 +26,7 @@ navbar:
 gems:
   - jekyll-paginate
   - jekyll-gist
+  - jemoji
 
 # Custom vars
 author:
