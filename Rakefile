@@ -1,3 +1,10 @@
+# Taken from 
+# http://ixti.net/software/2013/01/28/using-jekyll-plugins-on-github-pages.html
+# @ixti
+# 
+# Script to build and deploy jekyll into the remote repo at Github, since 
+# Github pages doesn't allow third party plugins when building it itself.
+
 require "rubygems"
 require "tmpdir"
 
