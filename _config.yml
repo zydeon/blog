@@ -12,6 +12,7 @@ title:            Pedro Matias
 description:      ''
 url:              http://pmatias.com
 baseurl:          ""
+excerpt_separator:  "<!--more-->"
 
 # Pagination
 paginate:         3
