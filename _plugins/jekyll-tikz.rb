@@ -63,7 +63,8 @@ module Jekyll
         FileUtils.mkdir_p tmp_directory
 
         dest_directory = File.join(Dir.pwd, "public/img", File.basename(context["page"]["url"], ".*"))
-        dest_path = File.join(dest_directory, "#{@file_name}.png")
+        # dest_path = File.join(dest_directory, "#{@file_name}.png")
+        dest_path = File.join(dest_directory, "#{@file_name}.svg")
         FileUtils.mkdir_p dest_directory
 
 
@@ -71,11 +72,14 @@ module Jekyll
         if !File.exist?(tex_path) or !tikz_same?(tex_path, tikz_code) or !File.exist?(dest_path)
           File.open(tex_path, 'w') { |file| file.write("#{tikz_code}") }
           system("pdflatex -output-directory #{tmp_directory} #{tex_path}")
-          system("/usr/bin/sips -s format png #{pdf_path} --out #{dest_path}")
+          system("pdf2svg #{pdf_path} #{dest_path}")
+          # system("/usr/bin/sips -s format png #{pdf_path} --out #{dest_path}")
         end
 
-        web_dest_path = File.join("/public/img", File.basename(context["page"]["url"], ".*"), "#{@file_name}.png")
-        "<img src=\"#{web_dest_path}\"/>"
+        # web_dest_path = File.join("/public/img", File.basename(context["page"]["url"], ".*"), "#{@file_name}.png")
+        # "<img src=\"#{web_dest_path}\"/>"
+        web_dest_path = File.join("/public/img", File.basename(context["page"]["url"], ".*"), "#{@file_name}.svg")
+        "<embed class=\"tikz\" src=\"#{web_dest_path}\" type=\"image/svg+xml\" />"
       end
 
       private
