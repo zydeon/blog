@@ -29,6 +29,7 @@ namespace :site do
   desc "Generate and publish blog to gh-pages"
   task :publish => [:generate] do
     Dir.mktmpdir do |tmp|
+      system "git checkout master"
       cp_r "_site/.", tmp
 
       pwd = Dir.pwd
