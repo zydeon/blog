@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="UTF-8">
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>
+    
+      Blog &middot; Pedro Matias
+    
+  </title>
+
+  <!-- Enable jQuery -->
+  <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+
+
+  <!-- All links outside open in new tab -->
+  <script>
+    $(document).ready(function(){
+      $(document.links).filter(function() {
+        return this.hostname != window.location.hostname;
+      }).attr('target', '_blank');      
+    });
+  </script>
+
+  <!-- Add behabiour to buttons that show/hide solutions -->
+  <script>
+    $(document).ready(function(){
+      $(".toggle-solution.hide").hide();
+      $(".toggle-solution.show").show();
+      $(".toggle-solution.hide").click(function(ev){
+        $(this).hide();
+        $(".hidden-solution").hide('fast');
+        $(".toggle-solution.show").show();
+      });
+      $(".toggle-solution.show").click(function(ev){
+        $(this).hide();
+        $(".hidden-solution").show('fast');
+        $(".toggle-solution.hide").show();
+        $('html,body').animate({
+          scrollTop: $('.toggle-solution.hide').offset().top}, 'slow');
+      });
+    }); 
+  </script>  
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/styles.css">
+
+  <!-- Icons -->
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/public/apple-touch-icon-precomposed.png">
+  <link rel="shortcut icon" href="/public/img/favicon.png?v=42">
+
+  <!-- RSS -->
+  <link rel="alternate" type="application/atom+xml" title="Pedro Matias" href="/atom.xml">
+
+  <!-- Enable MathJax -->
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      TeX:     { equationNumbers: { autoNumber: "AMS" } },
+      tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] }
+    });
+  </script>
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+</head>
+
+
+  <body>
+    <div class="container">
+
+      <header class="masthead">
+        <h3 class="masthead-title">
+          <a href="/" title="Home">Pedro Matias</a>
+          <small></small>
+        </h3>
+        <a href="/atom.xml"><i class="fa fa-rss"></i></a>
+        
+          <a href="http://pmatias.com">About</a>
+        
+          <a href="/archive">Archive</a>
+        
+      </header>
+
+      <main>
+        <div class="posts">
+  
+  <article class="post">
+    <h1 class="post-title">
+      <a href="/2016/12/16/hackerrank-shashank-and-list/">
+        HackerRank – Shashank and List
+      </a>
+    </h1>
+
+    <time datetime="2016-12-16T00:00:00-05:00" class="post-date">16 Dec 2016</time>
+
+    <p>Problem <a href="https://www.hackerrank.com/challenges/shashank-and-list">Shashank and List</a> is a math problem that asks for computing the sum $P = \sum_{i=1}^{2^N-1} 2^{S_i}$, where $S_i$ is the sum of all the elements of the $i^{th}$ non-empty sublist of a list A of $N$ elements. Since this value can be huge, we need to report $P \% (10^9+7)$ instead.</p>
+
+
+    <a href="/2016/12/16/hackerrank-shashank-and-list/">... Read more</a>
+  </article>
+
+   <hr class="gradient large"> 
+
+  
+  <article class="post">
+    <h1 class="post-title">
+      <a href="/2016/03/26/hackerrank-w19-2/">
+        HackerRank Week of Code 19 (Part II)
+      </a>
+    </h1>
+
+    <time datetime="2016-03-26T00:00:00-04:00" class="post-date">26 Mar 2016</time>
+
+    <p>Problem <strong>Scalar Products</strong> from HackerRank’s <a href="https://www.hackerrank.com/contests/w19/challenges">Week of Code 19</a> was quite an interesting one to solve. Despite being labelled “Difficult”, there were more accepted answers than in the previous problem <a href="https://www.hackerrank.com/contests/w19/challenges/two-robots">Two Robots</a>, which was supposedly easier to solve.</p>
+
+
+    <a href="/2016/03/26/hackerrank-w19-2/">... Read more</a>
+  </article>
+
+   <hr class="gradient large"> 
+
+  
+  <article class="post">
+    <h1 class="post-title">
+      <a href="/2016/03/14/hackerrank-w19-1/">
+        HackerRank Week of Code 19 (Part I)
+      </a>
+    </h1>
+
+    <time datetime="2016-03-14T00:00:00-04:00" class="post-date">14 Mar 2016</time>
+
+    <p>This is the first of a series of posts I plan to write about one of the first programming contests I have competed in, HackerRank’s <a href="https://www.hackerrank.com/contests/w19/challenges">Week of Code 19</a>. The set of problems was quite interesting and they were released one at a time every day throughout the week, in increasing order of difficulty.</p>
+
+<p>I will skip the first problem, because it’s a warmup kind of question. The second problem is called <strong>Two Robots</strong> and goes like this:</p>
+
+
+    <a href="/2016/03/14/hackerrank-w19-1/">... Read more</a>
+  </article>
+
+  
+
+  
+</div>
+
+<div class="pagination">
+  
+    <a class="pagination-item older" href="/blog/posts/2">Older</a>
+  
+  
+    <span class="pagination-item newer">Newer</span>
+  
+</div>
+
+      </main>
+
+      <footer class="footer">
+        <small>
+          &copy; <time datetime="2017-08-27T20:33:53-04:00">2017</time>. All rights reserved.
+        </small>
+      </footer>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="UTF-8">
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>
+    
+      HackerRank – Shashank and List &middot; Pedro Matias
+    
+  </title>
+
+  <!-- Enable jQuery -->
+  <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+
+
+  <!-- All links outside open in new tab -->
+  <script>
+    $(document).ready(function(){
+      $(document.links).filter(function() {
+        return this.hostname != window.location.hostname;
+      }).attr('target', '_blank');      
+    });
+  </script>
+
+  <!-- Add behabiour to buttons that show/hide solutions -->
+  <script>
+    $(document).ready(function(){
+      $(".toggle-solution.hide").hide();
+      $(".toggle-solution.show").show();
+      $(".toggle-solution.hide").click(function(ev){
+        $(this).hide();
+        $(".hidden-solution").hide('fast');
+        $(".toggle-solution.show").show();
+      });
+      $(".toggle-solution.show").click(function(ev){
+        $(this).hide();
+        $(".hidden-solution").show('fast');
+        $(".toggle-solution.hide").show();
+        $('html,body').animate({
+          scrollTop: $('.toggle-solution.hide').offset().top}, 'slow');
+      });
+    }); 
+  </script>  
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/styles.css">
+
+  <!-- Icons -->
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/public/apple-touch-icon-precomposed.png">
+  <link rel="shortcut icon" href="/public/img/favicon.png?v=42">
+
+  <!-- RSS -->
+  <link rel="alternate" type="application/atom+xml" title="Pedro Matias" href="/atom.xml">
+
+  <!-- Enable MathJax -->
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      TeX:     { equationNumbers: { autoNumber: "AMS" } },
+      tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] }
+    });
+  </script>
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+</head>
+
+
+  <body>
+    <div class="container">
+
+      <header class="masthead">
+        <h3 class="masthead-title">
+          <a href="/" title="Home">Pedro Matias</a>
+          <small></small>
+        </h3>
+        <a href="/atom.xml"><i class="fa fa-rss"></i></a>
+        
+          <a href="http://pmatias.com">About</a>
+        
+          <a href="/archive">Archive</a>
+        
+      </header>
+
+      <main>
+        <article class="post">
+  <h1 class="post-title">HackerRank – Shashank and List</h1>
+  <time datetime="2016-12-16T00:00:00-05:00" class="post-date">16 Dec 2016</time>
+  <p>Problem <a href="https://www.hackerrank.com/challenges/shashank-and-list">Shashank and List</a> is a math problem that asks for computing the sum $P = \sum_{i=1}^{2^N-1} 2^{S_i}$, where $S_i$ is the sum of all the elements of the $i^{th}$ non-empty sublist of a list A of $N$ elements. Since this value can be huge, we need to report $P \% (10^9+7)$ instead.</p>
+
+<!--more-->
+
+<p>The brute-force approach seems to be rather trivial: compute each $S_i$ and plug them in the sum. The problem with this approach is that there are $2^N-1$ possible sublists of A, and $N$ can be huge – see constraints above.</p>
+
+<h3 id="constraints">Constraints</h3>
+
+<ul>
+  <li>$1 \le N \le 10^5$</li>
+  <li>$0 \le A_i \le 10^{10}$</li>
+</ul>
+
+<div class="message">
+No spoiler alerts, press the button below to reveal the solution
+</div>
+<p><button class="toggle-solution show" href="#">Show solution</button>
+<button class="toggle-solution hide" href="#">Hide</button></p>
+
+<div class="hidden-solution"><h2 id="solution">Solution</h2>
+
+<p>It turns out that there’s a very neat way to sidestep this issue of explicitly computing the sum of the elements of every sublist $S_i$.</p>
+
+<p>Since $S_i$ represents a sum of elements, let us unfold each of the terms $2^{S_i}$ into the equivalent product of powers of 2, with exponents equal to the elements of the corresponding sublist. Now, each element $a$ of $A$ will appear in the sum $P$ as $2^a$ in every sublist that contains it, and be absent on all sublists that do not contain it. We want to avoid accounting the presence and absence of each element, since this will ultimately lead to enumerating all possible $2^N$ sublists. So how can we still compute this sum?</p>
+
+<p>As it turns out, there’s a neat way to sidestep this issue, by rewriting our equation:</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{array}{rl}
+ P &= 2^{S_1} + 2^{S_2} + \dots + 2^{S_{2^N-1}} \\
+   &= (2^{A_1} + 1)(2^{A_2} + 1) \dots (2^{A_N} + 1) - 1
+\end{array} %]]></script>
+
+<p>In this way, all the possible sublists are implicitly taken into account, as the choice of presence/absence is given by adding 1 to each of the $2^{A_i}$ terms. We still need to subtract 1 at the end, since we are only interested in non-empty sublists.</p>
+
+<p>Now, the only difficulty is in computing each of the powers $2^{A_i}$ in a fast way, which can be done in $O(log(10^{10}))$ using exponentiation by squaring. Hence, the total complexity is $O(Nlog(10^{10}))$.</p>
+
+<h3 id="using-dp">Using DP</h3>
+
+<p>The above formula could also be derived from applying Dynamic Programming to the problem: let $DP[i]$ be the solution using the the first $i$ elements of $A$. Then $DP[i+1]$ must be the solution that accounts for all the subsets accounted in $DP[i]$, as well as those that now contain $A_{i+1}$. The sum of these new subsets is simply $2^{A_{i+1}} \cdot DP[i]$. Thus:</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{array}{rl}
+  DP[i] &= DP[i-1] + 2^{A_{i+1}} \cdot DP[i] \\
+        &= (2^{A_{i+1}} + 1) \cdot DP[i-1]
+\end{array} %]]></script>
+
+<h3 id="code">Code</h3>
+
+<p>The input format is explained <a href="https://www.hackerrank.com/challenges/shashank-and-list">here</a>.</p>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="c">#!/usr/bin/env python3</span>
+<span class="n">read_ints</span> <span class="o">=</span> <span class="k">lambda</span> <span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">input</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()))</span>
+
+<span class="k">def</span> <span class="nf">power_mod</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">MOD</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="n">k</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">power_mod</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">k</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">MOD</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">%</span> <span class="n">MOD</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">N</span> <span class="o">*</span> <span class="p">(</span><span class="n">power_mod</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="p">(</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">MOD</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">%</span> <span class="n">MOD</span><span class="p">))</span> <span class="o">%</span> <span class="n">MOD</span>
+
+<span class="k">def</span> <span class="nf">solve</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">MOD</span><span class="p">):</span>
+    <span class="n">ans</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">A</span><span class="p">:</span>
+        <span class="n">ans</span> <span class="o">=</span> <span class="p">(</span><span class="n">ans</span> <span class="o">*</span> <span class="p">(</span><span class="n">power_mod</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">MOD</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="o">%</span> <span class="n">MOD</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">ans</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">MOD</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">'__main__'</span><span class="p">:</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">input</span><span class="p">())</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">read_ints</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">solve</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="mi">1000000007</span><span class="p">))</span></code></pre></figure>
+</div>
+
+</article>
+
+
+<aside class="related">
+  <h2>Recent Posts</h2>
+  <ul class="related-posts">
+    
+      <li>
+        <h3>
+          <a href="/2016/03/26/hackerrank-w19-2/">
+            HackerRank Week of Code 19 (Part II)
+            <small><time datetime="2016-03-26T00:00:00-04:00">26 Mar 2016</time></small>
+          </a>
+        </h3>
+      </li>
+    
+      <li>
+        <h3>
+          <a href="/2016/03/14/hackerrank-w19-1/">
+            HackerRank Week of Code 19 (Part I)
+            <small><time datetime="2016-03-14T00:00:00-04:00">14 Mar 2016</time></small>
+          </a>
+        </h3>
+      </li>
+    
+      <li>
+        <h3>
+          <a href="/2016/02/28/first-commit/">
+            First commit
+            <small><time datetime="2016-02-28T00:00:00-05:00">28 Feb 2016</time></small>
+          </a>
+        </h3>
+      </li>
+    
+  </ul>
+</aside>
+
+
+<!-- COMMENTS -->
+<div id="disqus_thread"></div>
+<script>
+/**
+* RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+* LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+*/
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL; // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+
+s.src = '//pmatias.disqus.com/embed.js';
+
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+      </main>
+
+      <footer class="footer">
+        <small>
+          &copy; <time datetime="2017-08-27T20:33:53-04:00">2017</time>. All rights reserved.
+        </small>
+      </footer>
+    </div>
+  </body>
+</html>

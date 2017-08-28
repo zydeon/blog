@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+ <title>Pedro Matias</title>
+ <link href="http://pmatias.com/atom.xml" rel="self"/>
+ <link href="http://pmatias.com/"/>
+ <updated>2017-08-27T20:33:53-04:00</updated>
+ <id>http://pmatias.com</id>
+ <author>
+   <name>Pedro Matias</name>
+   <email>pedro@pmatias.com</email>
+ </author>
+
+ 
+ <entry>
+   <title>HackerRank – Shashank and List</title>
+   <link href="http://pmatias.com/2016/12/16/hackerrank-shashank-and-list/"/>
+   <updated>2016-12-16T00:00:00-05:00</updated>
+   <id>http://pmatias.com/2016/12/16/hackerrank-shashank-and-list</id>
+   <content type="html">&lt;p&gt;Problem &lt;a href=&quot;https://www.hackerrank.com/challenges/shashank-and-list&quot;&gt;Shashank and List&lt;/a&gt; is a math problem that asks for computing the sum $P = \sum_{i=1}^{2^N-1} 2^{S_i}$, where $S_i$ is the sum of all the elements of the $i^{th}$ non-empty sublist of a list A of $N$ elements. Since this value can be huge, we need to report $P \% (10^9+7)$ instead.&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;p&gt;The brute-force approach seems to be rather trivial: compute each $S_i$ and plug them in the sum. The problem with this approach is that there are $2^N-1$ possible sublists of A, and $N$ can be huge – see constraints above.&lt;/p&gt;
+
+&lt;h3 id=&quot;constraints&quot;&gt;Constraints&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;$1 \le N \le 10^5$&lt;/li&gt;
+  &lt;li&gt;$0 \le A_i \le 10^{10}$&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;message&quot;&gt;
+No spoiler alerts, press the button below to reveal the solution
+&lt;/div&gt;
+&lt;p&gt;&lt;button class=&quot;toggle-solution show&quot; href=&quot;#&quot;&gt;Show solution&lt;/button&gt;
+&lt;button class=&quot;toggle-solution hide&quot; href=&quot;#&quot;&gt;Hide&lt;/button&gt;&lt;/p&gt;
+
+&lt;div class=&quot;hidden-solution&quot;&gt;&lt;h2 id=&quot;solution&quot;&gt;Solution&lt;/h2&gt;
+
+&lt;p&gt;It turns out that there’s a very neat way to sidestep this issue of explicitly computing the sum of the elements of every sublist $S_i$.&lt;/p&gt;
+
+&lt;p&gt;Since $S_i$ represents a sum of elements, let us unfold each of the terms $2^{S_i}$ into the equivalent product of powers of 2, with exponents equal to the elements of the corresponding sublist. Now, each element $a$ of $A$ will appear in the sum $P$ as $2^a$ in every sublist that contains it, and be absent on all sublists that do not contain it. We want to avoid accounting the presence and absence of each element, since this will ultimately lead to enumerating all possible $2^N$ sublists. So how can we still compute this sum?&lt;/p&gt;
+
+&lt;p&gt;As it turns out, there’s a neat way to sidestep this issue, by rewriting our equation:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;% &lt;![CDATA[
+\begin{array}{rl}
+ P &amp;= 2^{S_1} + 2^{S_2} + \dots + 2^{S_{2^N-1}} \\
+   &amp;= (2^{A_1} + 1)(2^{A_2} + 1) \dots (2^{A_N} + 1) - 1
+\end{array} %]]&gt;&lt;/script&gt;
+
+&lt;p&gt;In this way, all the possible sublists are implicitly taken into account, as the choice of presence/absence is given by adding 1 to each of the $2^{A_i}$ terms. We still need to subtract 1 at the end, since we are only interested in non-empty sublists.&lt;/p&gt;
+
+&lt;p&gt;Now, the only difficulty is in computing each of the powers $2^{A_i}$ in a fast way, which can be done in $O(log(10^{10}))$ using exponentiation by squaring. Hence, the total complexity is $O(Nlog(10^{10}))$.&lt;/p&gt;
+
+&lt;h3 id=&quot;using-dp&quot;&gt;Using DP&lt;/h3&gt;
+
+&lt;p&gt;The above formula could also be derived from applying Dynamic Programming to the problem: let $DP[i]$ be the solution using the the first $i$ elements of $A$. Then $DP[i+1]$ must be the solution that accounts for all the subsets accounted in $DP[i]$, as well as those that now contain $A_{i+1}$. The sum of these new subsets is simply $2^{A_{i+1}} \cdot DP[i]$. Thus:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;% &lt;![CDATA[
+\begin{array}{rl}
+  DP[i] &amp;= DP[i-1] + 2^{A_{i+1}} \cdot DP[i] \\
+        &amp;= (2^{A_{i+1}} + 1) \cdot DP[i-1]
+\end{array} %]]&gt;&lt;/script&gt;
+
+&lt;h3 id=&quot;code&quot;&gt;Code&lt;/h3&gt;
+
+&lt;p&gt;The input format is explained &lt;a href=&quot;https://www.hackerrank.com/challenges/shashank-and-list&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;c&quot;&gt;#!/usr/bin/env python3&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;read_ints&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;lambda&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;list&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()))&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;power_mod&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;N&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;k&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MOD&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;k&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;k&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;power_mod&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;N&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;k&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MOD&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MOD&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;N&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;power_mod&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;N&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;k&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MOD&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MOD&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MOD&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;solve&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;N&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;A&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MOD&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;ans&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;A&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;ans&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ans&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;power_mod&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MOD&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MOD&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ans&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MOD&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;__name__&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'__main__'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;N&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;A&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;read_ints&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;solve&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;N&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;A&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1000000007&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+&lt;/div&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>HackerRank Week of Code 19 (Part II)</title>
+   <link href="http://pmatias.com/2016/03/26/hackerrank-w19-2/"/>
+   <updated>2016-03-26T00:00:00-04:00</updated>
+   <id>http://pmatias.com/2016/03/26/hackerrank-w19-2</id>
+   <content type="html">&lt;p&gt;Problem &lt;strong&gt;Scalar Products&lt;/strong&gt; from HackerRank’s &lt;a href=&quot;https://www.hackerrank.com/contests/w19/challenges&quot;&gt;Week of Code 19&lt;/a&gt; was quite an interesting one to solve. Despite being labelled “Difficult”, there were more accepted answers than in the previous problem &lt;a href=&quot;https://www.hackerrank.com/contests/w19/challenges/two-robots&quot;&gt;Two Robots&lt;/a&gt;, which was supposedly easier to solve.&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;h2 id=&quot;problem-description&quot;&gt;Problem description&lt;/h2&gt;
+
+&lt;p&gt;Integer sequence $a$ having length $2n+2$ is defined as follows:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;$a_0 = 0$&lt;/li&gt;
+  &lt;li&gt;$a_1 = C$&lt;/li&gt;
+  &lt;li&gt;$a_{i+2} = (a_{i+1} + a_i) % M$, where $0 \le i \lt 2n $&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Write a function generator, $gen$, to generate the remaining values for $a_2$ through $a_{2n+1}$. The values returned by $gen$ describe two-dimensional vector $v_1 \dots v_n$, where each sequential pair of values describes the respective $x$ and $y$ coordinates for some some vector $v$ in the form $x_1,y_1,x_2,y_2, \dots, x_n,y_n$. In other words, $v_1=(a_2,a_2),v_2=(a_4,a_5), \dots ,v_n=(a_{2n},a_{2n+1})$.&lt;/p&gt;
+
+&lt;p&gt;Let $S$ be the set of scalar products of $v_i$ and $v_j$ for each $1 \le i,j \le n$, where $i \neq j$. Determine the number of different &lt;a href=&quot;http://mathworld.wolfram.com/Residue.html&quot;&gt;residues&lt;/a&gt; (modulus $M$) in $S$ and print the resulting value modulo $M$.&lt;/p&gt;
+
+&lt;h3 id=&quot;constraints&quot;&gt;Constraints&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;$1 \le C \le 10^9$&lt;/li&gt;
+  &lt;li&gt;$1 \le M \le 10^9$&lt;/li&gt;
+  &lt;li&gt;$1 \le n \le 3 \times 10^5$&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;message&quot;&gt;
+  For more details and input/output samples, check the original &lt;a href=&quot;https://www.hackerrank.com/contests/w19/challenges/scalar-products&quot;&gt;problem description&lt;/a&gt;.
+&lt;/div&gt;
+
+&lt;h2 id=&quot;solution&quot;&gt;Solution&lt;/h2&gt;
+&lt;p&gt;First, let’s think of a naive solution to this problem. We have $n$ vectors and we know how to compute scalar products for every pair of vectors. So, we need only to add the results residues to a set (to avoid repeated elements) and output the size of the set modulo $M$. Problem? Kind of, the number of vectors might be as big as $n=3 \times 10^5$, which makes a quadratic solution inefficient.&lt;/p&gt;
+
+&lt;p&gt;We know that the number of vector pairs is at least $\Omega(n^2)$. So, how in the universe could we get a solution faster than a quadratic one? We somehow need to take advantage of the structure of the sequence $a$.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Hint:&lt;/strong&gt; Fibonacci sequence&lt;/p&gt;
+
+&lt;div class=&quot;message&quot;&gt;
+To avoid spoils and let you think on the problem without accidentally looking through the solution, you need to press the button below to reveal it.
+&lt;/div&gt;
+&lt;p&gt;&lt;button class=&quot;toggle-solution show&quot; href=&quot;#&quot;&gt;Show solution&lt;/button&gt;
+&lt;button class=&quot;toggle-solution hide&quot; href=&quot;#&quot;&gt;Hide&lt;/button&gt;&lt;/p&gt;
+
+&lt;div class=&quot;hidden-solution&quot;&gt;&lt;p&gt;It’s easy to see how the sequence $a$ is an extension of the Fibonacci sequence $F_i=F_{i-1}+F_{i-2}$ (with $F_0=0$ and $F_1=1$):&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;% &lt;![CDATA[
+a_i = \begin{cases}
+CF_i          &amp; \text{, if } i \le 1 \\
+CF_i \,\%\, M &amp; \text{, otherwise}
+\end{cases} %]]&gt;&lt;/script&gt;
+
+&lt;p&gt;This is because,
+&lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
+\begin{array}{llll}
+a_0 &amp;= 0 &amp; &amp; = CF_0 \\
+a_1 &amp;= C &amp; &amp; = CF_1 \\
+a_2 &amp;= (a_0+a_1)\,\%\,M &amp;=(CF_0+C_1)\,\%\,M &amp;= CF_2 \,\%\,M \\
+\vdots &amp;&amp;&amp; \\
+a_{2n+2} &amp;= &amp; \dots &amp;= C(F_{2n+1}) \,\%\,M
+\end{array} %]]&gt;&lt;/script&gt;&lt;/p&gt;
+
+&lt;p&gt;So, we figured out something about the problem, but how can we make use of that? In this case, trying a few examples with pen and paper helps to see the pattern. Let’s write down the Fibonacci sequence:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;(0 \; 1) \; (1 \; 2) \; (3 \; 5) \; (8 \; 13) \; (21 \; 34) \; (55 \; 89) \dots&lt;/script&gt;
+
+&lt;p&gt;The parentheses group the sequence elements into the $2$-dimensional vectors that we’ll need. If we take the scalar product of vectors $(1,2)$ and $(3,5)$ we get $13$, which happens to be part of the sequence! We can repeat this process with other vectors to realize that the result of scalar products is given by a deterministic position in the sequence, which can be computed according to the positions of the vectors we are multiplying. More specifically,&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\begin{equation}
+\label{rec}
+v_i \cdot v_j = F_{2(i+j)+1}
+\end{equation}&lt;/script&gt;
+
+&lt;p&gt;Clearly, we can extend the formula to compute elements of $a$ by making the necessary adjustments. Hence, the solution to the problem is given by the number of distinct elements in the sequence&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;(a_k)_{k=k_{min}}^{k_{max}},&lt;/script&gt;
+
+&lt;p&gt;where&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;% &lt;![CDATA[
+\begin{array}{rll}
+ k_{min} &amp;= 2(1+2)+1     &amp;=7 \\
+ \text{and $\quad$} k_{max} &amp;= 2((n-1)+n)+1 &amp;=4n-2
+\end{array} %]]&gt;&lt;/script&gt;
+
+&lt;h3 id=&quot;proof-sketch-of-eqrefrec&quot;&gt;Proof sketch of \eqref{rec}&lt;/h3&gt;
+
+&lt;p&gt;Since all $v_k$ are themselves defined by Fibonacci sequence elements, we want to compute the following expression recursively:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;% &lt;![CDATA[
+\begin{align}
+   &amp; F_{\alpha}F_{\beta} + F_{\alpha+1}F_{\beta+1}=     \\
+ = \; &amp; F_{\alpha}F_{\beta} + (F_{\alpha}+F_{\alpha-1})F_{\beta+1} \\
+ = \; &amp; F_{\alpha}F_{\beta} + F_{\alpha}F_{\beta+1} + F_{\alpha-1}F_{\beta-1} \\
+ = \; &amp; F_{\alpha-1}F_{\beta+1} + F_{\alpha}F_{\beta+2}
+\end{align} %]]&gt;&lt;/script&gt;
+
+&lt;p&gt;We ended up with a similar expression, but somehow easier one: we moved the terms indexed by $\alpha$ one position to the left in the sequence and, similarly, moved the $\beta$ indexed terms one position to the right, at no cost.&lt;/p&gt;
+
+&lt;p&gt;Now, we can take advantage of the base cases of $F$ to simplify the expression. We can repeat the above process until $\alpha=F_0=0$ and when that happens, we have:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;% &lt;![CDATA[
+\begin{align}
+      &amp; F_0F_{\beta+\alpha} + F_1F_{\beta+\alpha+1}  \\
+ = \; &amp; F_{\beta+\alpha+1}  \\
+ = \; &amp; \dots \\
+ = \; &amp; F_{\alpha}F_{\beta} + F_{\alpha+1}F_{\beta+1} \\
+ = \; &amp; v_{\alpha/2} \cdot v_{\beta/2}
+\end{align} %]]&gt;&lt;/script&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\tag*{$\blacksquare$}&lt;/script&gt;
+
+&lt;h3 id=&quot;code&quot;&gt;Code&lt;/h3&gt;
+
+&lt;p&gt;The input format is explained &lt;a href=&quot;&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;c&quot;&gt;#!/usr/bin/env python3&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;solve&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;C&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;M&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;residues&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;fib&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;C&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;M&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;n&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fib&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)):&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;fib&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fib&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fib&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;M&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;residues&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;residues&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fib&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;C&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;M&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;residues&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;M&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;__name__&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'__main__'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;C&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;M&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;solve&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;C&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;M&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+&lt;/div&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>HackerRank Week of Code 19 (Part I)</title>
+   <link href="http://pmatias.com/2016/03/14/hackerrank-w19-1/"/>
+   <updated>2016-03-14T00:00:00-04:00</updated>
+   <id>http://pmatias.com/2016/03/14/hackerrank-w19-1</id>
+   <content type="html">&lt;p&gt;This is the first of a series of posts I plan to write about one of the first programming contests I have competed in, HackerRank’s &lt;a href=&quot;https://www.hackerrank.com/contests/w19/challenges&quot;&gt;Week of Code 19&lt;/a&gt;. The set of problems was quite interesting and they were released one at a time every day throughout the week, in increasing order of difficulty.&lt;/p&gt;
+
+&lt;p&gt;I will skip the first problem, because it’s a warmup kind of question. The second problem is called &lt;strong&gt;Two Robots&lt;/strong&gt; and goes like this:&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;You have a warehouse with $M$ containers filled with an infinite number of candies. The containers are arranged in a single row, equally spaced to be $1$ meter apart. You also have $2$ robots that can pick up $1$ piece of candy and transport it between any two containers.&lt;br /&gt;
+The robots take instructions in the form of queries consisting of two integers, $M_a$ and $M_b$, respectively. To execute a query, a robot travels to container $M_a$, picks up $1$ candy, transports it to container $M_b$, and then stops at $M_b$ until it receives another query.&lt;br /&gt;
+Calculate the minimum total distance the robots must travel to execute $N$ queries in order.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; For the first query a robot executes, there is no travel distance. For each subsequent query that robot executes, it must travel from the location where it completed its last query.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;(For details on the problem size and input/output samples, check the original &lt;a href=&quot;https://www.hackerrank.com/contests/w19/challenges/two-robots&quot;&gt;problem formulation&lt;/a&gt;.)&lt;/p&gt;
+
+&lt;h2 id=&quot;solution&quot;&gt;Solution&lt;/h2&gt;
+&lt;p&gt;The trivial $O(2^N)$ solution would be to enumerate every possible assignment of queries to robots and then simulate their execution by the order given in the input (which is the required one). Naturally, this wasn’t enough to get AC.&lt;/p&gt;
+
+&lt;p&gt;One could also think of a greedy strategy to solve the problem, such as iterating over the queries (in order) and, to each of them, assign the robot which travels less to execute it, based on its current position. But the following counter-example proves it wrong.&lt;/p&gt;
+
+&lt;embed class=&quot;tikz&quot; src=&quot;/public/img/hackerrank-w19-1/counter-example.svg&quot; type=&quot;image/svg+xml&quot; /&gt;
+
+&lt;div class=&quot;message&quot;&gt;
+To avoid spoils and let you think on the problem without accidentally looking through the solution, you need to press the button below to reveal it.
+&lt;/div&gt;
+&lt;p&gt;&lt;button class=&quot;toggle-solution show&quot; href=&quot;#&quot;&gt;Show solution&lt;/button&gt;
+&lt;button class=&quot;toggle-solution hide&quot; href=&quot;#&quot;&gt;Hide&lt;/button&gt;&lt;/p&gt;
+
+&lt;div class=&quot;hidden-solution&quot;&gt;&lt;h3 id=&quot;partitioning-the-problem&quot;&gt;Partitioning the problem&lt;/h3&gt;
+
+&lt;p&gt;A common technique to solve a problem is to break it down into a simpler ones. In this case, the problem size is directly given by $N=\text{#queries}$, so we probably need to break our problem down using this criteria. Luckily, we don’t need to worry about the order through which queries get executed, since it is fixed by the input.&lt;/p&gt;
+
+&lt;p&gt;Let’s use the following notation, to simplify our reasoning:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;$S_i$ ($T_i$) is the container from (to) which candies need to be taken (delivered) in the $i$&lt;sup&gt;th&lt;/sup&gt; query.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Now, imagine that we are left with $1$ query and that the robots are in positions $x$ and $y$. Can we solve the problem easily? In this case, it is trivial to see how: just pick the robot whose distance to $S_{N}$ is smaller.&lt;/p&gt;
+
+&lt;p&gt;Following the same reasoning, if we were to execute the $i$&lt;sup&gt;th&lt;/sup&gt; query and the robots were in positions $x’$ and $y’$, then we would choose the one which minimises the distance it needs to travel to execute this query, plus the total distance needed in the remaining sub-problem (notice that the position of one of the robots has changed, as well as the next query to be executed).&lt;/p&gt;
+
+&lt;p&gt;Hence, each of our sub-problems can be identified by $3$ parameters and we can solve each one of them through a recurrence relation, formalised as follows:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\begin{equation}
+ \label{dp1}
+ \mathcal{P}(i,x,y) = |T_i-S_i|+ \min
+ \begin{cases}
+  \mathcal{P}(i+1,T_i,y) + |S_i-x| \\[1em]
+  \mathcal{P}(i+1,x,T_i) + |S_i-y|
+ \end{cases} \\[2em]
+ ,\forall 1 \le i \le N \text{ and } \forall 1 \le x,y \le M
+\end{equation}&lt;/script&gt;
+
+&lt;p&gt;As for base cases, we have that: $\mathcal{P}(N+1,x,y)=0 \; (\forall \; 1 \le x,y \le M)$. The optimal solution is given by $\min_{1 \le x,y \le M} \mathcal{P}(1,x,y)$.&lt;/p&gt;
+
+&lt;p&gt;By now, you’re probably already seeing where this is going (*cof* DP *cof*). With the above relation, we established the property of &lt;a href=&quot;https://en.wikipedia.org/wiki/Optimal_substructure&quot;&gt;optimal substructure&lt;/a&gt;. It is also easy to see how we can have &lt;a href=&quot;https://en.wikipedia.org/wiki/Overlapping_subproblems&quot;&gt;overlapping subproblems&lt;/a&gt;, so we can take advantage of memoization and, hence, dynamic programming.&lt;/p&gt;
+
+&lt;h3 id=&quot;complexity&quot;&gt;Complexity&lt;/h3&gt;
+
+&lt;p&gt;The time complexity for filling up the DP table (and thus computing the optimal solution) is $O(NM^2)$ (think about the range of all parameters). However, we can improve it to $O(N^2)$, assuming $N \ll M$, by making use of the following observation.&lt;/p&gt;
+
+&lt;div class=&quot;observation&quot;&gt;
+&lt;b&gt;Observation.&lt;/b&gt; For every subproblem $\mathcal{P}(i,x,y)$, the positions $x$ and $y$ of each robot correspond always to some $T_k$ s.t. $1 \le k \lt i$ (already executed queries). In addition, it must be the case that one of the robots is at position $T_{i-1}$. The only exception to this rule is when no query has been executed yet, in which case the robots can be at any position.
+&lt;/div&gt;
+
+&lt;p&gt;Then, each subproblem can simply be represented by:&lt;/p&gt;
+
+&lt;p&gt;&lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
+\begin{equation*}
+\label{dp2}
+\mathcal{P}(i,j) = |T_i-S_i| + \min
+ \begin{cases}
+  \mathcal{P}(i+1,j) + |S_i-T_{i-1}| \\[1em]
+  \mathcal{P}(i+1,i-1) + |S_i-T_j|  &amp; \text{, if } j &gt; 0 \\[1em]
+  \mathcal{P}(i+1,i-1)              &amp; \text{, if } j = 0 \\[1em]
+ \end{cases} \\[2em]
+\end{equation*} %]]&gt;&lt;/script&gt;&lt;br /&gt;
+, where:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;$1 \le i \le N$ denotes the next query to be executed&lt;/li&gt;
+  &lt;li&gt;$0 \le j \lt i$ denotes the last query executed by the robot which is inactive by a longer time. If $j=0$, then it hasn’t executed any query yet.&lt;/li&gt;
+  &lt;li&gt;the base cases and the optimal solution are both computed in a way similar to the recurrence in \eqref{dp1}&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;improved-complexity&quot;&gt;Improved complexity&lt;/h4&gt;
+
+&lt;p&gt;The number of DP entries to be computed is directly given by the ranges of the variables $i$ and $j$. Moreover, it takes O(1) time to compute each of them. Thus, the overall time complexity is:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\sum_{i=1}^N \sum_{j=0}^{i-1} O(1) = \sum_{i=1}^N O(i) = \Theta(N^2)&lt;/script&gt;
+
+&lt;h3 id=&quot;code&quot;&gt;Code&lt;/h3&gt;
+
+&lt;p&gt;The code is written in Python3. The input format is explained &lt;a href=&quot;https://www.hackerrank.com/contests/w19/challenges/two-robots&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;solve&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;DP&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[[&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;float&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'inf'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;N&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;N&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;DP&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;DP&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;  &lt;span class=&quot;c&quot;&gt;# base case&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;N&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;r1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;queries&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;q0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;q1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;queries&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;j&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;r2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;queries&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;j&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;j&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;q0&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;DP&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;j&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;min&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;abs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;r1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;q0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;DP&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;j&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;abs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;r2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;q0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;DP&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;\
+                 &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;abs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;q0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;q1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;min&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;DP&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;abs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;queries&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;queries&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;__name__&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'__main__'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;eval&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;M&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;N&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;queries&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[[&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()]&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;N&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;solve&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+&lt;/div&gt;
+
+</content>
+ </entry>
+ 
+ <entry>
+   <title>First commit</title>
+   <link href="http://pmatias.com/2016/02/28/first-commit/"/>
+   <updated>2016-02-28T00:00:00-05:00</updated>
+   <id>http://pmatias.com/2016/02/28/first-commit</id>
+   <content type="html">&lt;p&gt;I like many things in life. For instance, I like Theoretical Computer Science and puzzles :smile:. I also like to learn new stuff and &lt;a href=&quot;https://github.com/zydeon&quot;&gt;build things&lt;/a&gt;. This blog is going to help me collect and share all this cool stuff!&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;p&gt;Probably, you will see many posts about a particular intriguing problem in Computer Science! Such problems might come, for example, from programming contests, research papers, or pretty much anywhere, as long as they keep me awaken at night. I will also publish topics on TCS which I find too fascinating to be left alone unnoticed. These will mostly be related to algorithms and combinatorial optimisation and they might arise from places like [1] or [2].&lt;/p&gt;
+
+&lt;p&gt;Hope you enjoy and stay tuned!&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;hr class=&quot;gradient small&quot; /&gt;
+
+&lt;p&gt;[1]    V. Vazirani - &lt;a href=&quot;http://www.cc.gatech.edu/fac/Vijay.Vazirani/book.pdf&quot;&gt;Approximation Algorithms&lt;/a&gt;&lt;br /&gt;
+[2]    S. Arora and B. Barak - &lt;a href=&quot;http://theory.cs.princeton.edu/complexity/book.pdf&quot;&gt;Computational Complexity: A Modern Approach&lt;/a&gt;&lt;/p&gt;
+</content>
+ </entry>
+ 
+
+</feed>
